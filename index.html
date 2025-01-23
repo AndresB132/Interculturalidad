@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explora la Interculturalidad de Latinoamérica</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f3f3f3;
+      color: #333;
+    }
+    header {
+      background-color: #ffcc80;
+      color: #444;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 2.5em;
+      color: #ff5722;
+    }
+    main {
+      padding: 20px;
+    }
+    #map {
+      height: 600px;
+      width: 100%;
+      margin-bottom: 20px;
+      border: 2px solid #ff5722;
+    }
+    #quiz-container {
+      display: none;
+      background-color: #fff;
+      padding: 20px;
+      border: 2px solid #ff5722;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: 0 auto 20px;
+    }
+    #quiz-container h2 {
+      color: #ff5722;
+    }
+    .country-image {
+      max-width: 100%;
+      height: auto;
+      margin: 20px 0;
+    }
+    .quiz-question {
+      margin: 10px 0;
+    }
+    #provinces-container {
+      background-color: #fff;
+      padding: 20px;
+      border: 2px solid #ff5722;
+      border-radius: 10px;
+      max-width: 800px;
+      margin: 0 auto 20px;
+    }
+    .provinces-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      padding: 15px;
+    }
+    .province-item {
+      background-color: #ffcc80;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .province-item:hover {
+      background-color: #ff9800;
+    }
+    #country-selector {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px auto;
+      max-width: 900px;
+    }
+
+    .country-flags-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 15px;
+      padding: 15px;
+    }
+
+    .country-flag-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 8px;
+      transition: background-color 0.3s;
+    }
+
+    .country-flag-item:hover {
+      background-color: #ffcc80;
+    }
+
+    .country-flag-item img {
+      width: 60px;
+      height: 40px;
+      object-fit: cover;
+      border: 1px solid #ddd;
+      margin-bottom: 5px;
+    }
+
+    .country-flag-item span {
+      text-align: center;
+      font-size: 0.9em;
+    }
+
+    .quiz-option {
+      padding: 10px 20px;
+      margin: 5px 0;
+      border: 2px solid #ff5722;
+      background-color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+      text-align: left;
+    }
+
+    .quiz-option:hover {
+      background-color: #fff3e0;
+    }
+
+    .quiz-option.correct {
+      background-color: #4caf50;
+      color: white;
+      border-color: #45a049;
+    }
+
+    .quiz-option.incorrect {
+      background-color: #f44336;
+      color: white;
+      border-color: #da190b;
+    }
+
+    #quiz-result {
+      padding: 10px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+    #quiz-result.correct {
+      background-color: #c8e6c9;
+      color: #2e7d32;
+    }
+
+    #quiz-result.incorrect {
+      background-color: #ffcdd2;
+      color: #c62828;
+    }
+
+    .province-item {
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .province-item:hover {
+      background-color: #fff3e0;
+    }
+
+    .correct-province {
+      background-color: #4caf50 !important;
+      color: white;
+    }
+
+    .incorrect-province {
+      background-color: #f44336 !important;
+      color: white;
+    }
+
+    .province-result {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 15px 30px;
+      border-radius: 5px;
+      font-weight: bold;
+      text-align: center;
+      animation: fadeIn 0.3s ease;
+      z-index: 1000;
+    }
+
+    .province-result.correct {
+      background-color: #c8e6c9;
+      color: #2e7d32;
+      border: 2px solid #4caf50;
+    }
+
+    .province-result.incorrect {
+      background-color: #ffcdd2;
+      color: #c62828;
+      border: 2px solid #f44336;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, 20px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    #random-country-selector {
+      text-align: center;
+      margin: 20px auto;
+      padding: 15px;
+      max-width: 600px;
+    }
+
+    .random-btn {
+      background-color: #ff5722;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 25px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .random-btn:hover {
+      background-color: #f4511e;
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .random-btn:active {
+      transform: scale(0.95);
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .random-btn.animate {
+      animation: pulse 0.5s ease;
+    }
+
+    .disabled-province {
+      opacity: 0.5;
+      cursor: not-allowed !important;
+    }
+
+    .help-message {
+      background-color: #fff3e0;
+      color: #f57c00;
+      padding: 10px 20px;
+      border-radius: 5px;
+      margin: 10px 0;
+      text-align: center;
+      border: 1px solid #ffe0b2;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .province-result {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 15px 30px;
+      border-radius: 5px;
+      font-weight: bold;
+      text-align: center;
+      animation: fadeIn 0.3s ease;
+      z-index: 1000;
+      max-width: 80%;
+      white-space: nowrap;
+    }
+
+    .province-result.incorrect {
+      background-color: #ffebee;
+      color: #c62828;
+      border: 2px solid #ef5350;
+    }
+
+    .province-item.incorrect-province {
+      background-color: #ffcdd2 !important;
+      color: #c62828;
+      opacity: 0.7;
+    }
+
+    .province-item.correct-province {
+      background-color: #c8e6c9 !important;
+      color: #2e7d32;
+      font-weight: bold;
+    }
+
+    #country-image {
+      max-width: 400px;
+      max-height: 300px;
+      width: auto;
+      height: auto;
+      object-fit: cover;
+      border-radius: 8px;
+      margin: 15px auto;
+      display: block;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .country-image {
+      max-width: 400px;
+      max-height: 300px;
+      width: auto;
+      height: auto;
+      object-fit: cover;
+      border-radius: 8px;
+      margin: 15px auto;
+      display: block;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+</head>
+<body>
+  <header>
+    <h1>Explora la Interculturalidad de Latinoamérica</h1>
+    <p>Conoce las tradiciones, idiomas y festividades de todos los países latinoamericanos.</p>
+    <div id="country-selector">
+      <h3>Selecciona un país:</h3>
+      <div class="country-flags-grid"></div>
+    </div>
+    <div id="random-country-selector">
+      <h3>¿No sabes qué país explorar?</h3>
+      <button id="random-country-btn" class="random-btn">¡Escoge un país al azar!</button>
+    </div>
+  </header>
+  <main>
+    <h2>Mapa Interactivo</h2>
+    <p>Haz clic en un marcador para aprender sobre la cultura de cada país y responder un quiz.</p>
+    <div id="map"></div>
+    <div id="quiz-container">
+      <h2 id="country-name"></h2>
+      <img id="country-image" class="country-image" alt="Imagen del país">
+      <div id="quiz-question" class="quiz-question"></div>
+    </div>
+    <div id="provinces-container" style="display: none;">
+      <h2>Provincias/Estados de <span id="province-country-name"></span></h2>
+      <div id="provinces-list" class="provinces-grid"></div>
+    </div>
+  </main>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script>
+    // Inicializar el mapa
+    const map = L.map('map').setView([-15.793889, -47.882778], 3.5);
+
+    // Añadir capa base
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Datos de los países
+    const countries = [
+      { 
+        name: "Argentina", 
+        coords: [-34.6037, -58.3816], 
+        info: "Idioma: Español<br>Comida típica: Asado, Empanadas<br>Festividades: Carnaval de Gualeguaychú, Fiesta Nacional del Sol<br><br>El tango, declarado Patrimonio Cultural Inmaterial de la Humanidad por la UNESCO, nació en los barrios populares de Buenos Aires y Montevideo a finales del siglo XIX. Esta danza característica combina pasión, elegancia y precisión en sus movimientos.",
+        image: "/Capitales/arg.jpg",
+        quiz: {
+          question: "¿Cuál es el baile tradicional de Argentina?",
+          options: [
+            { text: "Cumbia", correct: false },
+            { text: "Tango", correct: true },
+            { text: "Samba", correct: false }
+          ]
+        }
+      },
+      { 
+        name: "Bolivia", 
+        coords: [-16.5000, -68.1500], 
+        info: "Idioma: Español, Quechua, Aimara<br>Comida típica: Salteñas, Pique Macho<br>Festividades: Carnaval de Oruro, Fiesta de San Juan<br><br>El Carnaval de Oruro, celebrado en honor a la Virgen del Socavón, es uno de los eventos culturales más importantes de Bolivia. Esta celebración, que dura 10 días, incluye más de 48 grupos de danza y 28,000 bailarines, músicos y artistas. Fue declarado Obra Maestra del Patrimonio Oral e Intangible de la Humanidad por la UNESCO en 2001.",
+        image: "/Capitales/bolivia.jpg",
+        quiz: {
+          question: "¿Cuál es el nombre del famoso carnaval boliviano?",
+          options: [
+            { text: "Carnaval de Oruro", correct: true },
+            { text: "Carnaval de La Paz", correct: false },
+            { text: "Carnaval de Sucre", correct: false }
+          ]
+        }
+      },
+      { 
+        name: "Brasil", 
+        coords: [-15.7801, -47.9292], 
+        info: "Idioma: Portugués<br>Comida típica: Feijoada, Pão de Queijo<br>Festividades: Carnaval de Río, Festa Junina<br><br>El Carnaval de Río de Janeiro es la celebración más grande del mundo, atrayendo a más de 2 millones de personas por día. El desfile principal tiene lugar en el Sambódromo, donde las escuelas de samba compiten con elaboradas carrozas, trajes espectaculares y coreografías que cuentan historias de la cultura brasileña.",
+        image: "/Capitales/brasil.jpg",
+        quiz: {
+          question: "¿Cuál es el carnaval más famoso de Brasil?",
+          options: [
+            { text: "Carnaval de Salvador", correct: false },
+            { text: "Carnaval de São Paulo", correct: false },
+            { text: "Carnaval de Río", correct: true }
+          ]
+        }
+      },
+      { 
+        name: "Chile", 
+        coords: [-33.4489, -70.6693], 
+        info: "Idioma: Español<br>Comida típica: Empanadas, Curanto<br>Festividades: Fiestas Patrias, La Tirana<br><br>La Cueca, declarada danza nacional en 1979, representa el cortejo entre el huaso y la china. Los bailarines, vestidos con trajes tradicionales, recrean el galanteo entre el gallo y la gallina, usando pañuelos y realizando movimientos circulares. Es especialmente popular durante las Fiestas Patrias en septiembre.",
+        image: "/Capitales/chile.jpg",
+        quiz: {
+          question: "¿Cuál es el baile nacional de Chile?",
+          options: [
+            { text: "Cueca", correct: true },
+            { text: "Cumbia", correct: false },
+            { text: "Vals", correct: false }
+          ]
+        }
+      },
+      { 
+        name: "Colombia", 
+        coords: [4.7110, -74.0721], 
+        info: "Idioma: Español<br>Comida típica: Bandeja Paisa, Arepas<br>Festividades: Carnaval de Barranquilla, Feria de las Flores<br><br>El Carnaval de Barranquilla, declarado Patrimonio Cultural de la Humanidad por la UNESCO, es la festividad folclórica y cultural más importante de Colombia. Durante cuatro días, la ciudad se llena de música, danza y tradiciones que reflejan la diversidad cultural del país, incluyendo la famosa Batalla de Flores y la Gran Parada.",
+        image: "/Capitales/colombia.jpg",
+        quiz: {
+          question: "¿Cuál es el festival más importante de Colombia?",
+          options: [
+            { text: "Feria de Cali", correct: false },
+            { text: "Carnaval de Barranquilla", correct: true },
+            { text: "Festival de la Leyenda Vallenata", correct: false }
+          ]
+        }
+      },
+      { 
+        name: "México", 
+        coords: [19.4326, -99.1332], 
+        info: "Idioma: Español<br>Comida típica: Tacos, Mole<br>Festividades: Día de los Muertos, Guelaguetza<br><br>El Día de los Muertos, celebrado el 1 y 2 de noviembre, es una festividad única que honra a los seres queridos fallecidos. Esta tradición, reconocida por la UNESCO como Patrimonio Cultural Inmaterial de la Humanidad, combina elementos indígenas y católicos. Las familias crean altares con ofrendas, flores de cempasúchil, papel picado y las famosas calaveritas de azúcar.",
+        image: "/Capitales/mexico.jpg",
+        quiz: {
+          question: "¿Qué festividad mexicana honra a los muertos?",
+          options: [
+            { text: "Día de los Santos", correct: false },
+            { text: "Día de los Muertos", correct: true },
+            { text: "Día de la Guelaguetza", correct: false }
+          ]
+        }
+      },
+      { 
+        name: "Perú", 
+        coords: [-12.0464, -77.0428], 
+        info: "Idioma: Español, Quechua, Aymara<br>Comida típica: Ceviche, Lomo Saltado<br>Festividades: Inti Raymi, Fiestas del Cusco<br><br>Machu Picchu, la antigua ciudad inca construida en el siglo XV, es considerada una de las Nuevas Siete Maravillas del Mundo. Esta ciudadela, ubicada a 2,430 metros sobre el nivel del mar, es un testimonio impresionante de la arquitectura y la ingeniería inca, con sus famosas terrazas agrícolas y templos astronómicamente alineados.",
+        image: "/Capitales/peru.jpg",
+        quiz: {
+          question: "¿Cuál es la antigua ciudad inca más famosa de Perú?",
+          options: [
+            { text: "Ollantaytambo", correct: false },
+            { text: "Machu Picchu", correct: true },
+            { text: "Sacsayhuamán", correct: false }
+          ]
+        }
+      },
+      { 
+        name: "Costa Rica", 
+        coords: [9.9281, -84.0907],
+        info: "Idioma: Español<br>Comida típica: Gallo Pinto, Casado<br>Festividades: Día de la Independencia, Festival de la Luz<br><br>Costa Rica es reconocida mundialmente por su compromiso con la sostenibilidad y la conservación ambiental. Aproximadamente el 25% de su territorio está protegido en parques nacionales y reservas. El país es hogar de más del 5% de la biodiversidad mundial, a pesar de ocupar solo el 0.03% de la superficie terrestre.",
+        image: "/Capitales/costa-rica.jpg",
+        quiz: {
+          question: "¿Qué porcentaje del territorio de Costa Rica está protegido?",
+          options: [
+            { text: "15%", correct: false },
+            { text: "25%", correct: true },
+            { text: "35%", correct: false }
+          ]
+        }
+      },
+      { 
+        name: "Cuba", 
+        coords: [23.1136, -82.3666],
+        info: "Idioma: Español<br>Comida típica: Ropa Vieja, Moros y Cristianos<br>Festividades: Carnaval de Santiago, Festival del Habano<br><br>La música cubana, especialmente la salsa y el son cubano, ha influido significativamente en la música latina mundial. La Habana Vieja, declarada Patrimonio de la Humanidad por la UNESCO, conserva uno de los conjuntos históricos coloniales más importantes de América Latina.",
+        image: "/Capitales/cuba.jpg",
+        quiz: {
+          question: "¿Cuál es el género musical tradicional de Cuba?",
+          options: [
+            { text: "Merengue", correct: false },
+            { text: "Son cubano", correct: true },
+            { text: "Bachata", correct: false }
+          ]
+        }
+      },
+      { 
+        name: "Ecuador", 
+        coords: [-0.1807, -78.4678],
+        info: "Idioma: Español<br>Comida típica: Encebollado, Locro de Papa<br>Festividades: Inti Raymi, Mama Negra<br><br>Las Islas Galápagos, patrimonio natural de la humanidad, inspiraron la teoría de la evolución de Charles Darwin. El archipiélago alberga especies únicas como las tortugas gigantes y los pinzones de Darwin. Ecuador también es conocido por estar atravesado por la línea ecuatorial, de donde deriva su nombre.",
+        image: "/Capitales/ecuador.jpg",
+        quiz: {
+          question: "¿Qué islas ecuatorianas inspiraron a Charles Darwin?",
+          options: [
+            { text: "Islas Galápagos", correct: true },
+            { text: "Islas Puná", correct: false },
+            { text: "Islas Santa Clara", correct: false }
+          ]
+        }
+      },
+      { 
+        name: "El Salvador", 
+        coords: [13.6929, -89.2182],
+        info: "Idioma: Español<br>Comida típica: Pupusas, Yuca Frita<br>Festividades: Fiestas Agostinas, Día del Salvador del Mundo<br><br>Las pupusas, plato nacional salvadoreño, son tortillas gruesas rellenas de queso, frijoles o chicharrón. Esta comida tradicional tiene tanta importancia cultural que existe el Día Nacional de las Pupusas, celebrado el segundo domingo de noviembre.",
+        image: "/Capitales/salvador.jpg",
+        quiz: {
+          question: "¿Cuál es el plato nacional de El Salvador?",
+          options: [
+            { text: "Tamales", correct: false },
+            { text: "Pupusas", correct: true },
+            { text: "Enchiladas", correct: false }
+          ]
+        }
+      },
+      { 
+        name: "Guatemala", 
+        coords: [14.6349, -90.5069],
+        info: "Idioma: Español y 22 lenguas mayas<br>Comida típica: Pepián, Kak'ik<br>Festividades: Semana Santa, Día de Todos los Santos<br><br>Tikal, la antigua ciudad maya ubicada en el departamento de Petén, fue una de las ciudades más importantes de la civilización maya clásica. Sus impresionantes templos y pirámides, rodeados de selva tropical, son Patrimonio de la Humanidad por la UNESCO.",
+        image: "/Capitales/guatema.jpg",
+        quiz: {
+          question: "¿Cuál es el sitio arqueológico maya más famoso de Guatemala?",
+          options: [
+            { text: "Copán", correct: false },
+            { text: "Tikal", correct: true },
+            { text: "Palenque", correct: false }
+          ]
+        }
+      },
+      { 
+        name: "Honduras", 
+        coords: [14.0723, -87.1921],
+        info: "Idioma: Español<br>Comida típica: Baleadas, Sopa de Caracol<br>Festividades: Feria Juniana, Día de Lempira<br><br>Las Ruinas de Copán, consideradas el 'París del Mundo Maya', son famosas por sus estelas esculpidas y escalinatas jeroglíficas. Este sitio arqueológico, Patrimonio de la Humanidad, destaca por sus avanzados estudios astronómicos y matemáticos.",
+        image: "/Capitales/honduras.jpg",
+        quiz: {
+          question: "¿Qué ruinas mayas son conocidas como el 'París del Mundo Maya'?",
+          options: [
+            { text: "Copán", correct: true },
+            { text: "Tazumal", correct: false },
+            { text: "Quiriguá", correct: false }
+          ]
+        }
+      },
+      { 
+        name: "Nicaragua", 
+        coords: [12.1149, -86.2362],
+        info: "Idioma: Español<br>Comida típica: Nacatamales, Vigorón<br>Festividades: La Gritería, Santo Domingo de Guzmán<br><br>Nicaragua alberga el lago más grande de Centroamérica, el Lago Nicaragua o Cocibolca, que contiene más de 400 isletas volcánicas y es el único lago de agua dulce del mundo donde habitan tiburones toro.",
+        image: "/Capitales/nicaragua.jpg",
+        quiz: {
+          question: "¿Cuál es el lago más grande de Centroamérica?",
+          options: [
+            { text: "Lago Atitlán", correct: false },
+            { text: "Lago Nicaragua", correct: true },
+            { text: "Lago Yojoa", correct: false }
+          ]
+        }
+      },
+      { 
+        name: "Panamá", 
+        coords: [8.9936, -79.5197],
+        info: "Idioma: Español<br>Comida típica: Sancocho, Carimañolas<br>Festividades: Carnavales, Fiestas Patrias<br><br>El Canal de Panamá, una de las obras de ingeniería más importantes del mundo, une los océanos Atlántico y Pacífico. Desde su inauguración en 1914, ha transformado el comercio marítimo mundial, permitiendo el paso de más de 815,000 embarcaciones.",
+        image: "/Capitales/panama.jpg",
+        quiz: {
+          question: "¿En qué año se inauguró el Canal de Panamá?",
+          options: [
+            { text: "1904", correct: false },
+            { text: "1914", correct: true },
+            { text: "1924", correct: false }
+          ]
+        }
+      },
+      { 
+        name: "Paraguay", 
+        coords: [-25.2867, -57.3333],
+        info: "Idioma: Español y Guaraní<br>Comida típica: Sopa Paraguaya, Chipa<br>Festividades: Festival del Tereré, Independencia Nacional<br><br>Paraguay es el único país de América donde una lengua indígena, el guaraní, es oficial junto al español y es hablada por más del 80% de la población. El tereré, bebida nacional, es una infusión de yerba mate con agua fría y hierbas medicinales.",
+        image: "/Capitales/paraguay.jpg",
+        quiz: {
+          question: "¿Cuál es la lengua indígena oficial de Paraguay?",
+          options: [
+            { text: "Quechua", correct: false },
+            { text: "Guaraní", correct: true },
+            { text: "Aymara", correct: false }
+          ]
+        }
+      },
+      { 
+        name: "Uruguay", 
+        coords: [-34.9011, -56.1645],
+        info: "Idioma: Español<br>Comida típica: Chivito, Asado<br>Festividades: Carnaval, Noche de la Nostalgia<br><br>El Carnaval de Uruguay es el más largo del mundo, durando 40 días. El candombe, música y danza afrouruguaya declarada Patrimonio Cultural Inmaterial de la Humanidad, es parte fundamental de esta celebración y de la identidad cultural uruguaya.",
+        image: "/Capitales/uruguay.jpg",
+        quiz: {
+          question: "¿Cuál es el ritmo musical afrouruguayo declarado Patrimonio Cultural?",
+          options: [
+            { text: "Milonga", correct: false },
+            { text: "Candombe", correct: true },
+            { text: "Tango", correct: false }
+          ]
+        }
+      },
+      { 
+        name: "Venezuela", 
+        coords: [10.4806, -66.9036],
+        info: "Idioma: Español<br>Comida típica: Arepa, Pabellón Criollo<br>Festividades: Diablos Danzantes, Festival de la Virgen de la Divina Pastora<br><br>El Salto Ángel, la cascada más alta del mundo con 979 metros de altura, se encuentra en el Parque Nacional Canaima. Los Diablos Danzantes, una festividad religiosa celebrada durante el Corpus Christi, fue declarada Patrimonio Cultural Inmaterial de la Humanidad.",
+        image: "/Capitales/venezuela.jpg",
+        quiz: {
+          question: "¿Cuál es la cascada más alta del mundo?",
+          options: [
+            { text: "Cataratas del Iguazú", correct: false },
+            { text: "Salto Ángel", correct: true },
+            { text: "Cataratas Victoria", correct: false }
+          ]
+        }
+      }
+    ];
+
+    // Agregar marcadores al mapa
+    countries.forEach(country => {
+      const marker = L.marker(country.coords).addTo(map);
+      marker.bindPopup(`<b>${country.name}</b><br>${country.info}<br><button onclick="showQuiz('${country.name}')">Hacer Quiz</button>`);
+    });
+
+    // Agregar datos de provincias
+    const provincesData = {
+      "Argentina": [
+        "Buenos Aires", "Córdoba", "Santa Fe", "Mendoza", "Tucumán",
+        "Entre Ríos", "Salta", "Chaco", "Corrientes", "Santiago del Estero",
+        "San Juan", "Jujuy", "Río Negro", "Neuquén", "Formosa",
+        "Chubut", "San Luis", "Catamarca", "La Rioja", "Santa Cruz",
+        "La Pampa", "Tierra del Fuego", "Ciudad Autónoma de Buenos Aires"
+      ],
+      "Bolivia": [
+        "La Paz", "Santa Cruz", "Cochabamba", "Potosí", "Chuquisaca",
+        "Oruro", "Tarija", "Beni", "Pando"
+      ],
+      "Brasil": [
+        "Acre", "Alagoas", "Amapá", "Amazonas", "Bahía", "Ceará",
+        "Distrito Federal", "Espírito Santo", "Goiás", "Maranhão",
+        "Mato Grosso", "Mato Grosso do Sul", "Minas Gerais", "Pará",
+        "Paraíba", "Paraná", "Pernambuco", "Piauí", "Río de Janeiro",
+        "Río Grande do Norte", "Río Grande do Sul", "Rondônia", "Roraima",
+        "Santa Catarina", "São Paulo", "Sergipe", "Tocantins"
+      ],
+      "Chile": [
+        "Arica y Parinacota", "Tarapacá", "Antofagasta", "Atacama", "Coquimbo",
+        "Valparaíso", "Metropolitana de Santiago", "O'Higgins", "Maule", "Ñuble",
+        "Biobío", "La Araucanía", "Los Ríos", "Los Lagos", "Aysén", "Magallanes"
+      ],
+      "Colombia": [
+        "Amazonas", "Antioquia", "Arauca", "Atlántico", "Bolívar", "Boyacá",
+        "Caldas", "Caquetá", "Casanare", "Cauca", "Cesar", "Chocó", "Córdoba",
+        "Cundinamarca", "Guainía", "Guaviare", "Huila", "La Guajira", "Magdalena",
+        "Meta", "Nariño", "Norte de Santander", "Putumayo", "Quindío", "Risaralda",
+        "San Andrés y Providencia", "Santander", "Sucre", "Tolima", "Valle del Cauca",
+        "Vaupés", "Vichada", "Bogotá D.C."
+      ],
+      "Costa Rica": [
+        "San José", "Alajuela", "Cartago", "Heredia", "Guanacaste", 
+        "Puntarenas", "Limón"
+      ],
+      "Cuba": [
+        "Pinar del Río", "Artemisa", "La Habana", "Mayabeque", "Matanzas",
+        "Cienfuegos", "Villa Clara", "Sancti Spíritus", "Ciego de Ávila",
+        "Camagüey", "Las Tunas", "Holguín", "Granma", "Santiago de Cuba",
+        "Guantánamo", "Isla de la Juventud"
+      ],
+      "Ecuador": [
+        "Azuay", "Bolívar", "Cañar", "Carchi", "Chimborazo", "Cotopaxi",
+        "El Oro", "Esmeraldas", "Galápagos", "Guayas", "Imbabura", "Loja",
+        "Los Ríos", "Manabí", "Morona Santiago", "Napo", "Orellana", "Pastaza",
+        "Pichincha", "Santa Elena", "Santo Domingo de los Tsáchilas",
+        "Sucumbíos", "Tungurahua", "Zamora Chinchipe"
+      ],
+      "El Salvador": [
+        "Ahuachapán", "Cabañas", "Chalatenango", "Cuscatlán", "La Libertad",
+        "La Paz", "La Unión", "Morazán", "San Miguel", "San Salvador",
+        "San Vicente", "Santa Ana", "Sonsonate", "Usulután"
+      ],
+      "Guatemala": [
+        "Alta Verapaz", "Baja Verapaz", "Chimaltenango", "Chiquimula",
+        "El Progreso", "Escuintla", "Guatemala", "Huehuetenango", "Izabal",
+        "Jalapa", "Jutiapa", "Petén", "Quetzaltenango", "Quiché", "Retalhuleu",
+        "Sacatepéquez", "San Marcos", "Santa Rosa", "Sololá", "Suchitepéquez",
+        "Totonicapán", "Zacapa"
+      ],
+      "Honduras": [
+        "Atlántida", "Choluteca", "Colón", "Comayagua", "Copán", "Cortés",
+        "El Paraíso", "Francisco Morazán", "Gracias a Dios", "Intibucá",
+        "Islas de la Bahía", "La Paz", "Lempira", "Ocotepeque", "Olancho",
+        "Santa Bárbara", "Valle", "Yoro"
+      ],
+      "México": [
+        "Aguascalientes", "Baja California", "Baja California Sur", "Campeche",
+        "Chiapas", "Chihuahua", "Ciudad de México", "Coahuila", "Colima",
+        "Durango", "Estado de México", "Guanajuato", "Guerrero", "Hidalgo",
+        "Jalisco", "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca",
+        "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa",
+        "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán",
+        "Zacatecas"
+      ],
+      "Nicaragua": [
+        "Boaco", "Carazo", "Chinandega", "Chontales", "Costa Caribe Norte",
+        "Costa Caribe Sur", "Estelí", "Granada", "Jinotega", "León", "Madriz",
+        "Managua", "Masaya", "Matagalpa", "Nueva Segovia", "Río San Juan", "Rivas"
+      ],
+      "Panamá": [
+        "Bocas del Toro", "Chiriquí", "Coclé", "Colón", "Darién", "Herrera",
+        "Los Santos", "Panamá", "Panamá Oeste", "Veraguas", "Emberá-Wounaan",
+        "Guna Yala", "Ngäbe-Buglé"
+      ],
+      "Paraguay": [
+        "Alto Paraguay", "Alto Paraná", "Amambay", "Boquerón", "Caaguazú",
+        "Caazapá", "Canindeyú", "Central", "Concepción", "Cordillera",
+        "Guairá", "Itapúa", "Misiones", "Ñeembucú", "Paraguarí",
+        "Presidente Hayes", "San Pedro", "Asunción"
+      ],
+      "Perú": [
+        "Amazonas", "Áncash", "Apurímac", "Arequipa", "Ayacucho", "Cajamarca",
+        "Callao", "Cusco", "Huancavelica", "Huánuco", "Ica", "Junín",
+        "La Libertad", "Lambayeque", "Lima", "Loreto", "Madre de Dios",
+        "Moquegua", "Pasco", "Piura", "Puno", "San Martín", "Tacna",
+        "Tumbes", "Ucayali"
+      ],
+      "República Dominicana": [
+        "Azua", "Baoruco", "Barahona", "Dajabón", "Distrito Nacional",
+        "Duarte", "Elías Piña", "El Seibo", "Espaillat", "Hato Mayor",
+        "Hermanas Mirabal", "Independencia", "La Altagracia", "La Romana",
+        "La Vega", "María Trinidad Sánchez", "Monseñor Nouel", "Monte Cristi",
+        "Monte Plata", "Pedernales", "Peravia", "Puerto Plata", "Samaná",
+        "San Cristóbal", "San José de Ocoa", "San Juan", "San Pedro de Macorís",
+        "Santiago", "Santiago Rodríguez", "Santo Domingo", "Sánchez Ramírez",
+        "Valverde"
+      ],
+      "Uruguay": [
+        "Artigas", "Canelones", "Cerro Largo", "Colonia", "Durazno", "Flores",
+        "Florida", "Lavalleja", "Maldonado", "Montevideo", "Paysandú",
+        "Río Negro", "Rivera", "Rocha", "Salto", "San José", "Soriano",
+        "Tacuarembó", "Treinta y Tres"
+      ],
+      "Venezuela": [
+        "Amazonas", "Anzoátegui", "Apure", "Aragua", "Barinas", "Bolívar",
+        "Carabobo", "Cojedes", "Delta Amacuro", "Distrito Capital", "Falcón",
+        "Guárico", "La Guaira", "Lara", "Mérida", "Miranda", "Monagas",
+        "Nueva Esparta", "Portuguesa", "Sucre", "Táchira", "Trujillo",
+        "Yaracuy", "Zulia"
+      ]
+    };
+
+    // Modificar la función showQuiz para manejar las respuestas
+    function showQuiz(countryName) {
+      const country = countries.find(c => c.name === countryName);
+      if (country) {
+        document.getElementById('country-name').textContent = country.name;
+        document.getElementById('country-image').src = country.image;
+        
+        // Crear el HTML para las opciones del quiz
+        const quizHTML = `
+          <p>${country.quiz.question}</p>
+          ${country.quiz.options.map((option, index) => `
+            <button 
+              onclick="checkAnswer(${option.correct}, this)" 
+              class="quiz-option"
+            >${String.fromCharCode(65 + index)}) ${option.text}</button>
+          `).join('<br>')}
+          <div id="quiz-result" style="margin-top: 10px; display: none;"></div>
+        `;
+        
+        document.getElementById('quiz-question').innerHTML = quizHTML;
+        document.getElementById('quiz-container').style.display = 'block';
+        
+        // Mostrar provincias
+        showProvinces(country.name);
+        
+        window.scrollTo(0, document.getElementById('quiz-container').offsetTop);
+      }
+    }
+
+    // Modificar la función showProvinces
+    function showProvinces(countryName) {
+      const provincesContainer = document.getElementById('provinces-container');
+      const provincesList = document.getElementById('provinces-list');
+      document.getElementById('province-country-name').textContent = countryName;
+      
+      if (provincesData[countryName]) {
+        provincesList.innerHTML = '';
+        provincesData[countryName].forEach(province => {
+          const provinceDiv = document.createElement('div');
+          provinceDiv.className = 'province-item';
+          provinceDiv.textContent = province;
+          provinceDiv.onclick = () => checkProvince(province, countryName, provinceDiv);
+          provincesList.appendChild(provinceDiv);
+        });
+        provincesContainer.style.display = 'block';
+      } else {
+        provincesContainer.style.display = 'none';
+      }
+    }
+
+    // Modificar la función checkProvince
+    function checkProvince(province, countryName, provinceDiv) {
+      // Deshabilitar todas las provincias después de una selección correcta
+      const allProvinces = document.querySelectorAll('.province-item');
+      
+      if (provincesData[countryName].includes(province)) {
+        // Marcar como correcta
+        provinceDiv.classList.add('correct-province');
+        showProvinceResult(true, province);
+        
+        // Deshabilitar todas las provincias
+        allProvinces.forEach(p => {
+          p.style.pointerEvents = 'none';
+          if (p !== provinceDiv) {
+            p.classList.add('disabled-province');
+          }
+        });
+      } else {
+        // Marcar como incorrecta
+        provinceDiv.classList.add('incorrect-province');
+        showProvinceResult(false, province);
+        
+        // Deshabilitar solo la provincia incorrecta
+        provinceDiv.style.pointerEvents = 'none';
+        
+        // Mostrar mensaje de ayuda
+        showHelpMessage(countryName);
+      }
+    }
+
+    // Nueva función para mostrar mensaje de ayuda
+    function showHelpMessage(countryName) {
+      const helpDiv = document.createElement('div');
+      helpDiv.className = 'help-message';
+      helpDiv.textContent = '¡Incorrecto! Intenta seleccionar otra provincia.';
+      
+      // Remover mensaje de ayuda anterior si existe
+      const existingHelp = document.querySelector('.help-message');
+      if (existingHelp) {
+        existingHelp.remove();
+      }
+      
+      document.getElementById('provinces-container').appendChild(helpDiv);
+      
+      // Remover el mensaje después de 3 segundos
+      setTimeout(() => {
+        helpDiv.remove();
+      }, 3000);
+    }
+
+    // Modificar la función showProvinceResult
+    function showProvinceResult(isCorrect, province) {
+      const resultDiv = document.createElement('div');
+      resultDiv.className = `province-result ${isCorrect ? 'correct' : 'incorrect'}`;
+      
+      if (isCorrect) {
+        resultDiv.textContent = `¡Correcto! ${province} es una provincia de este país.`;
+      } else {
+        resultDiv.textContent = `${province} no es la provincia correcta. ¡Sigue intentando!`;
+      }
+      
+      // Remover resultado anterior si existe
+      const existingResult = document.querySelector('.province-result');
+      if (existingResult) {
+        existingResult.remove();
+      }
+      
+      document.getElementById('provinces-container').appendChild(resultDiv);
+      
+      setTimeout(() => {
+        resultDiv.remove();
+      }, 3000);
+    }
+
+    // Agregar datos de banderas y coordenadas para cada país
+    const countryFlags = {
+      "Argentina": "ar",
+      "Bolivia": "bo",
+      "Brasil": "br",
+      "Chile": "cl",
+      "Colombia": "co",
+      "Costa Rica": "cr",
+      "Cuba": "cu",
+      "Ecuador": "ec",
+      "El Salvador": "sv",
+      "Guatemala": "gt",
+      "Honduras": "hn",
+      "México": "mx",
+      "Nicaragua": "ni",
+      "Panamá": "pa",
+      "Paraguay": "py",
+      "Perú": "pe",
+      "República Dominicana": "do",
+      "Uruguay": "uy",
+      "Venezuela": "ve"
+    };
+
+    // Función para crear el selector de países
+    function createCountrySelector() {
+      const grid = document.querySelector('.country-flags-grid');
+      Object.entries(countryFlags).forEach(([country, code]) => {
+        const countryDiv = document.createElement('div');
+        countryDiv.className = 'country-flag-item';
+        countryDiv.innerHTML = `
+          <img src="https://flagcdn.com/w80/${code}.png" 
+               alt="Bandera de ${country}">
+          <span>${country}</span>
+        `;
+        countryDiv.onclick = () => {
+          const countryData = countries.find(c => c.name === country);
+          if (countryData) {
+            map.setView(countryData.coords, 6);
+            showQuiz(country.name);
+          }
+        };
+        grid.appendChild(countryDiv);
+      });
+    }
+
+    // Llamar a la función cuando se carga la página
+    window.addEventListener('load', createCountrySelector);
+
+    // Función para verificar la respuesta
+    function checkAnswer(isCorrect, button) {
+      // Deshabilitar todos los botones
+      const buttons = document.querySelectorAll('.quiz-option');
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        if (btn.onclick.toString().includes('true')) {
+          btn.classList.add('correct');
+        }
+      });
+
+      // Mostrar si la respuesta es correcta o incorrecta
+      const resultDiv = document.getElementById('quiz-result');
+      resultDiv.style.display = 'block';
+      
+      if (isCorrect) {
+        button.classList.add('correct');
+        resultDiv.innerHTML = '¡Correcto! ¡Lo hiciste bien!';
+        resultDiv.className = 'correct';
+      } else {
+        button.classList.add('incorrect');
+        resultDiv.innerHTML = 'Incorrecto. Intenta de nuevo.';
+        resultDiv.className = 'incorrect';
+      }
+    }
+
+    // Agregar la función para seleccionar país aleatorio
+    function selectRandomCountry() {
+      const button = document.getElementById('random-country-btn');
+      button.classList.add('animate');
+      
+      // Lista de países disponibles
+      const availableCountries = [
+        "Argentina", "Bolivia", "Brasil", "Chile", "Colombia",
+        "Costa Rica", "Cuba", "Ecuador", "El Salvador", "Guatemala",
+        "Honduras", "México", "Nicaragua", "Panamá", "Paraguay",
+        "Perú", "República Dominicana", "Uruguay", "Venezuela"
+      ];
+      
+      // Seleccionar un país al azar
+      const randomIndex = Math.floor(Math.random() * availableCountries.length);
+      const selectedCountry = availableCountries[randomIndex];
+      
+      // Pequeña animación antes de mostrar el país
+      setTimeout(() => {
+        button.classList.remove('animate');
+        
+        // Encontrar el país en el array de countries y mostrar su información
+        const countryData = countries.find(c => c.name === selectedCountry);
+        if (countryData) {
+          // Centrar el mapa en el país seleccionado
+          map.setView(countryData.coords, 6);
+          // Mostrar el quiz y la información del país
+          showQuiz(selectedCountry);
+        }
+      }, 500);
+    }
+
+    // Agregar el event listener cuando se carga la página
+    document.addEventListener('DOMContentLoaded', function() {
+      const randomButton = document.getElementById('random-country-btn');
+      randomButton.addEventListener('click', selectRandomCountry);
+    });
+  </script>
+</body>
+</html>

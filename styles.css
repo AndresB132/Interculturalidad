@@ -1,0 +1,44 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  header {
+    background: #ffcc80;
+    width: 100%;
+    text-align: center;
+    padding: 1rem;
+  }
+  
+  #calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    width: 80%;
+    margin: 20px 0;
+  }
+  
+  #calendar div {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+    background: #f5f5f5;
+    cursor: pointer;
+  }
+  
+  #event-details {
+    background: #fff3e0;
+    padding: 1rem;
+    border: 1px solid #ccc;
+    width: 60%;
+    margin-top: 20px;
+  }
+  
+  #event-info {
+    font-size: 1rem;
+  }
+  
